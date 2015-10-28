@@ -19,7 +19,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
             <Button
-                android:id="@+id/button1"
+                android:id="@+id/selectStructureButton"
                 android:layout_weight="1"
                 android:layout_width="30dp"
                 android:layout_height="60dp"
@@ -57,12 +57,66 @@
             android:gravity="center">
             <Button
                 android:id="@+id/cameraButton"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="사진 찍기"/>
 
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/structureLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/buttonArea"
+            android:background="#60000000"
+            android:orientation="vertical"
+            android:layout_margin="10dp"
+            android:visibility="invisible">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="100dp">
+                <Button
+                    android:id="@+id/structureButton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃1"/>
+                <Button
+                    android:id="@+id/structureButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃2"/>
+                <Button
+                    android:id="@+id/structureButton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃3"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="100dp">
+                <Button
+                    android:id="@+id/structureButton4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃4"/>
+                <Button
+                    android:id="@+id/structureButton5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃5"/>
+                <Button
+                    android:id="@+id/structureCancelButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃6"/>
+            </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 
