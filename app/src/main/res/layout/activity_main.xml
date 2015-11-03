@@ -7,22 +7,26 @@
         android:id="@+id/introLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:background="#ffffff"
-        >
+        android:layout_centerInParent="true">
+        <ImageView
+            android:layout_weight="1"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:background="#ffffff" />
         <ImageView
             android:id="@+id/introImage"
-            android:layout_width="fill_parent"
-            android:layout_height="450dp"
-            android:background="#ffffff" />
-        <TextView
-            android:layout_width="fill_parent"
+            android:layout_weight="3"
+            android:layout_width="10dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textSize="40sp"
-            android:text="Toco Tucan"/>
-
+            android:src="@drawable/intro"
+            android:background="#ffffff" />
+        <ImageView
+            android:layout_weight="1"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:background="#ffffff" />
     </LinearLayout>
 
 </RelativeLayout>

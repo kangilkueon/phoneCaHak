@@ -17,40 +17,41 @@
         <LinearLayout
             style="@style/topButtonArea"
             android:id="@+id/buttonArea"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
             <Button
-                style="@style/buttonTop"
+                style="@style/buttonTopLand"
                 android:id="@+id/selectStructureButton"
                 android:background="@drawable/btn_structure_off"/>
             <Button
-                style="@style/buttonTop"
+                style="@style/buttonTopLand"
                 android:id="@+id/button2"
                 android:background="@drawable/btn_timer_off" />
             <Button
-                style="@style/buttonTop"
+                style="@style/buttonTopLand"
                 android:id="@+id/button3"
                 android:text="크롭"/>
             <Button
-                style="@style/buttonTop"
+                style="@style/buttonTopLand"
                 android:id="@+id/rotateCameraButton"
                 android:text="회전" />
             <Button
-                style="@style/buttonTop"
+                style="@style/buttonTopLand"
                 android:id="@+id/button5"
                 android:text="더보기" />
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/shutterArea"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true">
             <ImageView
                 android:id="@+id/gyroStatus"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/gyro_off"
-                android:layout_centerVertical="true"/>
+                android:layout_alignParentBottom="true"/>
             <Button
                 android:id="@+id/cameraButton"
                 android:layout_width="90dp"
@@ -60,35 +61,58 @@
                 android:layout_centerInParent="true"
                 android:background="@drawable/btn_shutter_of" />
         </RelativeLayout>
-        <ImageView
-            android:id="@+id/structureImageView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"/>
         <LinearLayout
             android:id="@+id/structureLayout"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_below="@id/buttonArea"
             android:background="@drawable/popup_default"
-            android:layout_margin="20dp"
+            android:layout_margin="15dp"
             android:padding="10dp"
-            android:visibility="invisible"
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="250dp">
+                android:layout_height="100dp">
                 <Button
-                    style="@style/buttonStructure"
                     android:id="@+id/structureButton1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
                     android:text = "레이아웃1"/>
                 <Button
-                    style="@style/buttonStructure"
                     android:id="@+id/structureButton2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
                     android:text = "레이아웃2"/>
                 <Button
-                    style="@style/buttonStructure"
                     android:id="@+id/structureButton3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
                     android:text = "레이아웃3"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="100dp">
+                <Button
+                    android:id="@+id/structureButton4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃4"/>
+                <Button
+                    android:id="@+id/structureButton5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃5"/>
+                <Button
+                    android:id="@+id/structureCancelButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text = "레이아웃6"/>
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>

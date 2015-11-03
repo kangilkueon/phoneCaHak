@@ -1,12 +1,20 @@
 package com.tocotoucan.soft.phonecahak;
 
+import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.hardware.Camera;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -20,7 +28,7 @@ import java.text.SimpleDateFormat;
 /**
  * Created by kangilkueon on 15. 10. 28.
  */
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity implements SensorEventListener {
     static final int FRONT_CAMERA = 0;
     static final int BACK_CAMERA = 1;
 
@@ -38,6 +46,8 @@ public class CameraActivity extends AppCompatActivity {
     Button structure_button4;
     Button structure_button5;
 
+    ImageView structure_image;
+
     Button structure_cancel_button;
 
     Camera mCamera;
@@ -45,10 +55,20 @@ public class CameraActivity extends AppCompatActivity {
 
     int camera_type;
 
+    /* gyroscope Sensor */
+    int gyro_x;
+    int gyro_y;
+    int gyro_z;
+
+    private SensorManager mSensorManager;
+    private Sensor gyroSensor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        gyroSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         mPicture = new Camera.PictureCallback() {
             @Override
@@ -97,18 +117,12 @@ public class CameraActivity extends AppCompatActivity {
             }
         });
 
-        structure_cancel_button = (Button) findViewById(R.id.structureCancelButton);
-        structure_cancel_button.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                structure_layout.setVisibility(View.INVISIBLE);
-            }
-        });
-
+        structure_image = (ImageView) findViewById(R.id.structureImageView);
         structure_button1 = (Button) findViewById(R.id.structureButton1);
         structure_button1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                structure_image.setBackgroundResource(R.drawable.vertical_structure_1);
                 structure_layout.setVisibility(View.INVISIBLE);
             }
         });
@@ -117,6 +131,7 @@ public class CameraActivity extends AppCompatActivity {
         structure_button2.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                structure_image.setBackgroundResource(R.drawable.vertical_structure_2);
                 structure_layout.setVisibility(View.INVISIBLE);
             }
         });
@@ -125,22 +140,7 @@ public class CameraActivity extends AppCompatActivity {
         structure_button3.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                structure_layout.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        structure_button4 = (Button) findViewById(R.id.structureButton4);
-        structure_button4.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                structure_layout.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        structure_button5 = (Button) findViewById(R.id.structureButton5);
-        structure_button5.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
+                structure_image.setBackgroundResource(R.drawable.vertical_structure_3);
                 structure_layout.setVisibility(View.INVISIBLE);
             }
         });
@@ -192,13 +192,13 @@ public class CameraActivity extends AppCompatActivity {
         int camera_id = -1;
         mCamera.release();
         if(camera_type == FRONT_CAMERA){
-            camera_id = getBackCamera();
+            camera_id = getCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
             if (camera_id >= 0) {
                 mCamera = Camera.open(camera_id);
                 camera_type = BACK_CAMERA;
             }
         } else if(camera_type == BACK_CAMERA) {
-            camera_id = getFrontCamera();
+            camera_id = getCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
             if (camera_id >= 0) {
                 mCamera = Camera.open(camera_id);
                 camera_type = FRONT_CAMERA;
@@ -207,28 +207,13 @@ public class CameraActivity extends AppCompatActivity {
         refreshCamera();
     }
 
-    private int getFrontCamera(){
+    private int getCamera(int type){
         int camera_id = -1;
         int camera_num = Camera.getNumberOfCameras();
         for (int i = 0; i < camera_num; i++) {
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT){
-                camera_id = i;
-                break;
-            }
-        }
-
-        return camera_id;
-    }
-
-    private int getBackCamera(){
-        int camera_id = -1;
-        int camera_num = Camera.getNumberOfCameras();
-        for (int i = 0; i < camera_num; i++) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK){
+            if (info.facing == type){
                 camera_id = i;
                 break;
             }
@@ -261,5 +246,61 @@ public class CameraActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         mCamera.startPreview();
+    }
+
+    @Override
+
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        System.out.println("####################FUCK###################");
+
+
+        switch(newConfig.orientation) {
+
+            case Configuration.ORIENTATION_PORTRAIT:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // 세로전환
+                setContentView(R.layout.activity_camera);
+            break;
+
+            case Configuration.ORIENTATION_LANDSCAPE:
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE); // 가로전환
+                setContentView(R.layout.activity_camera);
+            break;
+
+        }
+
+    }
+
+
+
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        Sensor sensor = event.sensor;
+        if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            gyro_x = Math.round(event.values[0] * 1000);
+            gyro_y = Math.round(event.values[1] * 1000);
+            gyro_z = Math.round(event.values[2] * 1000);
+
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
