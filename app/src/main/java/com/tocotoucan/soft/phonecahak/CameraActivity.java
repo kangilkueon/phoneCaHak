@@ -9,6 +9,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -28,7 +30,7 @@ import java.text.SimpleDateFormat;
 /**
  * Created by kangilkueon on 15. 10. 28.
  */
-public class CameraActivity extends AppCompatActivity implements SensorEventListener {
+public class CameraActivity extends AppCompatActivity implements StructureSelectFragment.OnFragmentInteractionListener {
     static final int FRONT_CAMERA = 0;
     static final int BACK_CAMERA = 1;
 
@@ -39,12 +41,6 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     Button camera_button;
     Button select_structure_button;
     LinearLayout structure_layout;
-
-    Button structure_button1;
-    Button structure_button2;
-    Button structure_button3;
-    Button structure_button4;
-    Button structure_button5;
 
     ImageView structure_image;
 
@@ -113,37 +109,12 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         select_structure_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                structure_layout.setVisibility(View.VISIBLE);
+                //structure_layout.setVisibility(View.VISIBLE);
+                replaceFragment();
             }
         });
 
         structure_image = (ImageView) findViewById(R.id.structureImageView);
-        structure_button1 = (Button) findViewById(R.id.structureButton1);
-        structure_button1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                structure_image.setBackgroundResource(R.drawable.vertical_structure_1);
-                structure_layout.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        structure_button2 = (Button) findViewById(R.id.structureButton2);
-        structure_button2.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                structure_image.setBackgroundResource(R.drawable.vertical_structure_2);
-                structure_layout.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        structure_button3 = (Button) findViewById(R.id.structureButton3);
-        structure_button3.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                structure_image.setBackgroundResource(R.drawable.vertical_structure_3);
-                structure_layout.setVisibility(View.INVISIBLE);
-            }
-        });
 
         structure_layout = (LinearLayout) findViewById(R.id.structureLayout);
 
@@ -154,6 +125,29 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         holder.addCallback(surfaceListener);
 
         camera_type = BACK_CAMERA;
+    }
+
+    Fragment fragment;
+    private void replaceFragment(){
+        fragment = new StructureSelectFragment();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.structureLayout, fragment);
+        transaction.commit();
+    }
+
+    @Override
+    public void onSelectStructureFrame(int structure_num){
+        switch (structure_num){
+            case 1 :
+                structure_image.setBackgroundResource(R.drawable.vertical_structure_1);
+                break;
+            case 2 :
+                structure_image.setBackgroundResource(R.drawable.vertical_structure_2);
+                break;
+            case 3 :
+                structure_image.setBackgroundResource(R.drawable.vertical_structure_3);
+                break;
+        }
     }
 
     private SurfaceHolder.Callback surfaceListener = new SurfaceHolder.Callback() {
@@ -280,27 +274,10 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mSensorManager.unregisterListener(this);
-    }
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        Sensor sensor = event.sensor;
-        if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            gyro_x = Math.round(event.values[0] * 1000);
-            gyro_y = Math.round(event.values[1] * 1000);
-            gyro_z = Math.round(event.values[2] * 1000);
-
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 }

@@ -18,7 +18,8 @@
             style="@style/topButtonArea"
             android:id="@+id/buttonArea"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:gravity="center">
             <Button
                 style="@style/buttonTop"
                 android:id="@+id/selectStructureButton"
@@ -69,27 +70,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_below="@id/buttonArea"
-            android:background="@drawable/popup_default"
-            android:layout_margin="20dp"
-            android:padding="10dp"
-            android:visibility="invisible"
             android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="250dp">
-                <Button
-                    style="@style/buttonStructure"
-                    android:id="@+id/structureButton1"
-                    android:text = "레이아웃1"/>
-                <Button
-                    style="@style/buttonStructure"
-                    android:id="@+id/structureButton2"
-                    android:text = "레이아웃2"/>
-                <Button
-                    style="@style/buttonStructure"
-                    android:id="@+id/structureButton3"
-                    android:text = "레이아웃3"/>
-            </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 

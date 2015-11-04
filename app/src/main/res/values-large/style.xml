@@ -12,9 +12,9 @@
     </style>
     <!-- Button -->
     <style name="buttonTop">
-        <item name="android:layout_width">65dp</item>
-        <item name="android:layout_height">65dp</item>
-        <item name="android:padding">15dp</item>
+        <item name="android:layout_width">60dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:padding">10dp</item>
     </style>
     <!-- Button landscape-->
     <style name="buttonTopLand">
@@ -25,8 +25,8 @@
 
     <!-- Structure template Button -->
     <style name="buttonStructure">
-        <item name="android:layout_width">54dp</item>
-        <item name="android:layout_height">96dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_margin">10dp</item>
     </style>
