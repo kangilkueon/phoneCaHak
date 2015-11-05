@@ -1,5 +1,6 @@
 package com.tocotoucan.soft.phonecahak;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -8,7 +9,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
     LinearLayout intro_layout;
     ImageView intro;
 

@@ -2,7 +2,7 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <!-- Top Button -->
@@ -19,8 +19,8 @@
     <!-- Button landscape-->
     <style name="buttonTopLand">
         <item name="android:layout_width">60dp</item>
-        <item name="android:layout_height">25dp</item>
-        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:padding">15dp</item>
     </style>
 
     <!-- Structure template Button -->
@@ -31,5 +31,11 @@
         <item name="android:layout_margin">10dp</item>
     </style>
 
+    <style name="buttonStructureLand">
+        <item name="android:layout_width">96dp</item>
+        <item name="android:layout_height">54dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_margin">10dp</item>
+    </style>
 
 </resources>

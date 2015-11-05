@@ -30,10 +30,6 @@
                 android:background="@drawable/btn_timer_off" />
             <Button
                 style="@style/buttonTop"
-                android:id="@+id/button3"
-                android:text="크롭"/>
-            <Button
-                style="@style/buttonTop"
                 android:id="@+id/rotateCameraButton"
                 android:text="회전" />
             <Button
@@ -47,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true">
             <ImageView
-                android:id="@+id/gyroStatus"
+                android:id="@+id/angleStatus"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/gyro_off"

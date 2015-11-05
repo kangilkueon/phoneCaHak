@@ -24,28 +24,46 @@
             android:layout_height="120dp"
             android:orientation="horizontal">
             <Button
-                style="@style/buttonStructure"
+                style="@style/buttonStructureLand"
                 android:id="@+id/structureButton1"
-                android:background="@drawable/small_vertical_structure_1" />
+                android:background="@drawable/small_horizontal_structure_1" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="5"
-                android:text="@string/vertical_structure_description_1"/>
+                android:layout_weight="7"
+                android:text="@string/horizontal_structure_description_1"/>
+            <Button
+                style="@style/buttonStructureLand"
+                android:id="@+id/structureButton2"
+                android:background="@drawable/small_horizontal_structure_2" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:text="@string/horizontal_structure_description_2"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="120dp"
             android:orientation="horizontal">
             <Button
-                style="@style/buttonStructure"
-                android:id="@+id/structureButton2"
-                android:background="@drawable/small_vertical_structure_2" />
+                style="@style/buttonStructureLand"
+                android:id="@+id/structureButton3"
+                android:background="@drawable/small_horizontal_structure_3" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="5"
-                android:text="@string/vertical_structure_description_2"/>
+                android:layout_weight="7"
+                android:text="@string/horizontal_structure_description_3"/>
+            <Button
+                style="@style/buttonStructureLand"
+                android:id="@+id/structureButton4"
+                android:background="@drawable/small_horizontal_structure_4" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="7"
+                android:text="@string/horizontal_structure_description_4"/>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

@@ -4,31 +4,33 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 public class StructureSelectFragment extends Fragment {
-    Button structure_button1;
-    Button structure_button2;
-    Button structure_button3;
-    Button structure_button4;
-    Button structure_button5;
+    private boolean isLandscape;
 
     private OnFragmentInteractionListener mListener;
 
-    public StructureSelectFragment() {
-        // Required empty public constructor
+    public StructureSelectFragment(){
+
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle argument = getArguments();
+        isLandscape = argument.getBoolean("isLandscape");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Button structure_button1;
+        Button structure_button2;
+
         View v = inflater.inflate(R.layout.structure_select_fragment, container, false);
         structure_button1 = (Button) v.findViewById(R.id.structureButton1);
         structure_button1.setOnClickListener(new View.OnClickListener(){
@@ -49,14 +51,28 @@ public class StructureSelectFragment extends Fragment {
             }
         });
 
-        structure_button3 = (Button) v.findViewById(R.id.structureButton3);
-        structure_button3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onSelectStructureFrame(3);
-                getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
-            }
-        });
+        if (isLandscape) {
+            Button structure_button3;
+            structure_button3 = (Button) v.findViewById(R.id.structureButton3);
+            structure_button3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onSelectStructureFrame(3);
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+                }
+            });
+
+            Button structure_button4;
+
+            structure_button4 = (Button) v.findViewById(R.id.structureButton4);
+            structure_button4.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onSelectStructureFrame(4);
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+                }
+            });
+        }
         return v;
     }
 
