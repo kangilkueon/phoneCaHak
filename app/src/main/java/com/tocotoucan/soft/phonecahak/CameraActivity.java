@@ -1,13 +1,16 @@
 package com.tocotoucan.soft.phonecahak;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -40,9 +43,6 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     /* Layout component */
     SurfaceView camera_preview;
     SurfaceHolder holder;
-    Button rotate_camera_button;
-    Button camera_button;
-    Button select_structure_button;
     LinearLayout structure_layout;
 
     ImageView structure_image;
@@ -51,7 +51,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     Camera mCamera;
     Camera.PictureCallback mPicture;
 
-    int camera_type;
+    static int camera_type = BACK_CAMERA;
 
     /* Orientation Sensor */
     private int pitch;
@@ -71,11 +71,14 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     private Fragment structureFragment;
     private BackButtonHandler backButtonHandler;
 
+    Vibrator vibrator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         mPicture = new Camera.PictureCallback() {
@@ -113,7 +116,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         holder.addCallback(surfaceListener);
 
-        camera_type = BACK_CAMERA;
+
         angle_status = (ImageView) findViewById(R.id.angleStatus);
 
         /* 화면 방향에 따른 레이아웃 설정 */
@@ -217,23 +220,38 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             mCamera.setParameters(parameters);
             */
             mCamera.startPreview();
+
+            Log.e("On Resume", "Camera type :: " + camera_type);
+            selectCamera(camera_type);
+            Log.e("On Resume", "Camera type :: " + camera_type);
         }
     };
 
-    private void selectCamera() {
-        int camera_id = -1;
-        mCamera.release();
+    private void switchCamera() {
         if(camera_type == FRONT_CAMERA){
-            camera_id = getCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
-            if (camera_id >= 0) {
-                mCamera = Camera.open(camera_id);
-                camera_type = BACK_CAMERA;
-            }
+            selectCamera(BACK_CAMERA);
         } else if(camera_type == BACK_CAMERA) {
+            selectCamera(FRONT_CAMERA);
+        }
+    }
+
+    private void selectCamera(int type) {
+        int camera_id = -1;
+        if (mCamera == null) {
+            return;
+        }
+        mCamera.release();
+        if(type == FRONT_CAMERA){
             camera_id = getCamera(Camera.CameraInfo.CAMERA_FACING_FRONT);
             if (camera_id >= 0) {
                 mCamera = Camera.open(camera_id);
                 camera_type = FRONT_CAMERA;
+            }
+        } else if(type == BACK_CAMERA) {
+            camera_id = getCamera(Camera.CameraInfo.CAMERA_FACING_BACK);
+            if (camera_id >= 0) {
+                mCamera = Camera.open(camera_id);
+                camera_type = BACK_CAMERA;
             }
         }
         refreshCamera();
@@ -290,8 +308,16 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180) {
             isLandscape = false;
+
+            Log.e("On Resume", "Camera type :: " + camera_type);
+            selectCamera(camera_type);
+            Log.e("On Resume", "Camera type :: " + camera_type);
         } else if (display.getRotation() == Surface.ROTATION_90 || display.getRotation() == Surface.ROTATION_270) {
             isLandscape = true;
+
+            Log.e("On Resume", "Camera type :: " + camera_type);
+            selectCamera(camera_type);
+            Log.e("On Resume", "Camera type :: " + camera_type);
         }
 
         if (isFragmentOn){
@@ -322,6 +348,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
                     sensorBreakTimer = System.currentTimeMillis();
                     Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
+                    vibrator.vibrate(1000);
                 }
             } else {
                 angleStatusSwitch(false);
@@ -332,6 +359,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
                     sensorBreakTimer = System.currentTimeMillis();
                     Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
+                    vibrator.vibrate(1000);
                 }
             } else {
                 angleStatusSwitch(false);
@@ -342,6 +370,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
                     sensorBreakTimer = System.currentTimeMillis();
                     Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
+                    vibrator.vibrate(1000);
                 }
             } else {
                 angleStatusSwitch(false);
@@ -355,11 +384,16 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     }
 
     private void buttonInit () {
+        Button rotate_camera_button;
+        Button camera_button;
+        Button select_structure_button;
+        Button etc_button;
+
         rotate_camera_button = (Button) findViewById(R.id.rotateCameraButton);
         rotate_camera_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                selectCamera();
+                switchCamera();
                 if (isFragmentOn){
                     closeFragment();
                 }
@@ -384,6 +418,15 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 } else {
                     replaceFragment();
                 }
+            }
+        });
+
+        etc_button = (Button) findViewById(R.id.etcButton);
+        etc_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CameraActivity.this, etcActivity.class);
+                startActivity(intent);
             }
         });
     }
@@ -422,5 +465,19 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         } else {
             angle_status.setImageResource(R.drawable.gyro_off);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        Log.w("Hello!", "WORLD");
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+
+        Log.e("DESTROY", "YEAH!!");
     }
 }

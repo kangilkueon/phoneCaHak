@@ -5,6 +5,14 @@
         <item name="android:windowFullscreen">true</item>
     </style>
 
+    <style name="AppThemeEtc" parent="Theme.AppCompat.Light">
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+    </style>
+
+    <style  name="MyActionBar">
+        <item name="android:background">#CDDC39</item>
+    </style>
+
     <!-- Top Button -->
     <!-- Button Area -->
     <style name="topButtonArea">
@@ -14,13 +22,13 @@
     <style name="buttonTop">
         <item name="android:layout_width">65dp</item>
         <item name="android:layout_height">65dp</item>
-        <item name="android:padding">15dp</item>
+        <item name="android:padding">20dp</item>
     </style>
     <!-- Button landscape-->
     <style name="buttonTopLand">
         <item name="android:layout_width">60dp</item>
         <item name="android:layout_height">60dp</item>
-        <item name="android:padding">15dp</item>
+        <item name="android:padding">20dp</item>
     </style>
 
     <!-- Structure template Button -->

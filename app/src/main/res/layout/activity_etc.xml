@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:typeface="monospace"
+        android:textSize="20sp"
+        android:text="폰카학개론 사용법"/>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="12dp"
+        android:text="1. 가로 / 세로 프레임중 찍으려는 사진과 가장 일치하는 프레임을 고릅니다.\n\n2. 카메라의 높이를 인물 대상의 눈높이보다 약간 아래로 맞춥니다.\n\n3. 카메라를 각도 아이콘이 초록색이 될 때까지 기울입니다.\n\n4. 프레임에 얼굴과 발 끝 부분을 맞춥니다.\n\n5. 셔터 버튼을 누릅니다."/>
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:typeface="monospace"
+        android:textSize="20sp"
+        android:paddingTop="24dp"
+        android:text="인물사진 팁"/>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingRight="12dp"
+            android:src="@drawable/etc_picture"/>
+        <TextView
+            android:layout_width="200dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:paddingTop="12dp"
+            android:text="1. 복잡하거나 인물이 입은 옷 색깔과 같은 색의 배경은 피하는 것이 좋습니다.\n\n2. 핸드폰 카메라는 광각렌즈를 사용하여 외곽으로 갈 수 록 왜곡이 있습니다. 얼굴이 가운데 부분에 위치할수록 다리가 길어보입니다.\n\n3. 인물 사진을 상반신, 하반신에서 자를 때 허리,가슴,무릎 등에서 자르면 어색한 사진이 나옵니다. 그보다 약간 아래가 좋습니다."/>
+
+
+    </LinearLayout>
+</LinearLayout>

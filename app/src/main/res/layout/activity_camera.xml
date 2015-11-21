@@ -31,11 +31,11 @@
             <Button
                 style="@style/buttonTop"
                 android:id="@+id/rotateCameraButton"
-                android:text="회전" />
+                android:background="@drawable/btn_rotate_off" />
             <Button
                 style="@style/buttonTop"
-                android:id="@+id/button5"
-                android:text="더보기" />
+                android:id="@+id/etcButton"
+                android:background="@drawable/btn_etc_off" />
         </LinearLayout>
         <RelativeLayout
             android:id="@+id/shutterArea"
