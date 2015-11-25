@@ -11,7 +11,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 public class StructureSelectFragment extends Fragment {
+    static final int FRONT_CAMERA = 0;
+    static final int BACK_CAMERA = 1;
     private boolean isLandscape;
+    static int camera_type;
 
     private OnFragmentInteractionListener mListener;
 
@@ -24,6 +27,7 @@ public class StructureSelectFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle argument = getArguments();
         isLandscape = argument.getBoolean("isLandscape");
+        camera_type = argument.getInteger("camera_type");
     }
 
     @Override
@@ -31,7 +35,13 @@ public class StructureSelectFragment extends Fragment {
         Button structure_button1;
         Button structure_button2;
 
-        View v = inflater.inflate(R.layout.structure_select_fragment, container, false);
+        View v;
+		if (camera_type == BACK_CAMERA)
+			v = inflater.inflate(R.layout.structure_select_fragment, container, false);
+		else 
+			v = inflater.inflate(R.layout.structure_select_fragment_selfie, container, false);
+		
+		
         structure_button1 = (Button) v.findViewById(R.id.structureButton1);
         structure_button1.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -42,37 +52,39 @@ public class StructureSelectFragment extends Fragment {
             }
         });
 
-        structure_button2 = (Button) v.findViewById(R.id.structureButton2);
-        structure_button2.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                mListener.onSelectStructureFrame(2);
-                getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
-            }
-        });
+		if (camera_type == BACK_CAMERA) {
+			structure_button2 = (Button) v.findViewById(R.id.structureButton2);
+			structure_button2.setOnClickListener(new View.OnClickListener(){
+				@Override
+				public void onClick(View v){
+					mListener.onSelectStructureFrame(2);
+					getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+				}
+			});
 
-        if (isLandscape) {
-            Button structure_button3;
-            structure_button3 = (Button) v.findViewById(R.id.structureButton3);
-            structure_button3.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onSelectStructureFrame(3);
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
-                }
-            });
+			if (isLandscape) {
+				Button structure_button3;
+				structure_button3 = (Button) v.findViewById(R.id.structureButton3);
+				structure_button3.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						mListener.onSelectStructureFrame(3);
+						getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+					}
+				});
 
-            Button structure_button4;
+				Button structure_button4;
 
-            structure_button4 = (Button) v.findViewById(R.id.structureButton4);
-            structure_button4.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onSelectStructureFrame(4);
-                    getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
-                }
-            });
-        }
+				structure_button4 = (Button) v.findViewById(R.id.structureButton4);
+				structure_button4.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						mListener.onSelectStructureFrame(4);
+						getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+					}
+				});
+			}
+		}
         return v;
     }
 

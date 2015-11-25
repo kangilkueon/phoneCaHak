@@ -133,6 +133,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         Bundle argument = new Bundle();
         argument.putBoolean("isLandscape", isLandscape);
+        argument.putInteger("camera_type", camera_type);
         structureFragment.setArguments(argument);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.structureLayout, structureFragment);
@@ -151,11 +152,19 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     public void onSelectStructureFrame(int structure_num){
         switch (structure_num){
             case 1 :
-                if (isLandscape) {
-                    structure_image.setBackgroundResource(R.drawable.horizontal_structure_1);
-                } else {
-                    structure_image.setBackgroundResource(R.drawable.vertical_structure_1);
-                }
+				if (camera_type == BACK_CAMERA) {
+					if (isLandscape) {
+						structure_image.setBackgroundResource(R.drawable.horizontal_structure_1);
+					} else {
+						structure_image.setBackgroundResource(R.drawable.vertical_structure_1);
+					}
+				} else {
+					if (isLandscape) {
+						structure_image.setBackgroundResource(R.drawable.selfie_structure_1);
+					} else {
+						structure_image.setBackgroundResource(R.drawable.selfie_structure_2);
+					}
+				}
                 break;
             case 2 :
                 if (isLandscape) {
