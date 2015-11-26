@@ -125,6 +125,9 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         backButtonHandler = new BackButtonHandler(this);
         structureFragment = new StructureSelectFragment();
+        closeFragment();
+
+        structure_image.setVisibility(View.INVISIBLE);
     }
 
     /* Fragment 생성 및 변경 */
@@ -133,7 +136,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         Bundle argument = new Bundle();
         argument.putBoolean("isLandscape", isLandscape);
-        argument.putInteger("camera_type", camera_type);
+        argument.putInt("camera_type", camera_type);
         structureFragment.setArguments(argument);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.structureLayout, structureFragment);
@@ -150,7 +153,11 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
     @Override
     public void onSelectStructureFrame(int structure_num){
+        structure_image.setVisibility(View.VISIBLE);
         switch (structure_num){
+            case 0 :
+                structure_image.setVisibility(View.INVISIBLE);
+                break;
             case 1 :
 				if (camera_type == BACK_CAMERA) {
 					if (isLandscape) {
@@ -237,6 +244,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     };
 
     private void switchCamera() {
+        structure_image.setVisibility(View.INVISIBLE);
         if(camera_type == FRONT_CAMERA){
             selectCamera(BACK_CAMERA);
         } else if(camera_type == BACK_CAMERA) {
@@ -341,7 +349,6 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         angleStatusSwitch(false);
     }
 
-    private long sensorBreakTimer = 0;
     @Override
     public void onSensorChanged(SensorEvent event) {
         pitch = Math.round(event.values[0]);
@@ -354,35 +361,40 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180) {
             if (roll > -100 && roll < -90) {
                 angleStatusSwitch(true);
-                if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
-                    sensorBreakTimer = System.currentTimeMillis();
-                    Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
-                    vibrator.vibrate(1000);
-                }
+                notifyGoodAngle();
             } else {
                 angleStatusSwitch(false);
+                isAlaramed = false;
             }
         } else if (display.getRotation() == Surface.ROTATION_90) {
             if(azimuth < 85 && azimuth > 75) {
                 angleStatusSwitch(true);
-                if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
-                    sensorBreakTimer = System.currentTimeMillis();
-                    Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
-                    vibrator.vibrate(1000);
-                }
+                notifyGoodAngle ();
             } else {
                 angleStatusSwitch(false);
+                isAlaramed = false;
             }
         } else if (display.getRotation() == Surface.ROTATION_270) {
             if(azimuth < -85 && azimuth > -95) {
                 angleStatusSwitch(true);
-                if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
-                    sensorBreakTimer = System.currentTimeMillis();
-                    Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
-                    vibrator.vibrate(1000);
-                }
+                notifyGoodAngle ();
             } else {
                 angleStatusSwitch(false);
+                isAlaramed = false;
+            }
+        }
+    }
+
+    private long sensorBreakTimer = 0;      /* Write the time when was last alarm */
+    private boolean isAlaramed = false;     /* Prevent too many vibrations */
+    private void notifyGoodAngle () {
+        angleStatusSwitch(true);
+        if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
+            sensorBreakTimer = System.currentTimeMillis();
+            Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
+            if (!isAlaramed) {
+                vibrator.vibrate(1000);
+                isAlaramed = true;
             }
         }
     }

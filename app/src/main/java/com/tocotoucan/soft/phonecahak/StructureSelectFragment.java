@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 public class StructureSelectFragment extends Fragment {
     static final int FRONT_CAMERA = 0;
@@ -27,21 +28,30 @@ public class StructureSelectFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle argument = getArguments();
         isLandscape = argument.getBoolean("isLandscape");
-        camera_type = argument.getInteger("camera_type");
+        camera_type = argument.getInt("camera_type");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Button structure_button1;
         Button structure_button2;
+        ImageButton btn_close;
 
         View v;
 		if (camera_type == BACK_CAMERA)
 			v = inflater.inflate(R.layout.structure_select_fragment, container, false);
 		else 
 			v = inflater.inflate(R.layout.structure_select_fragment_selfie, container, false);
-		
-		
+
+        btn_close = (ImageButton) v.findViewById(R.id.btn_close);
+        btn_close.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                mListener.onSelectStructureFrame(0);
+
+                getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+            }
+        });
         structure_button1 = (Button) v.findViewById(R.id.structureButton1);
         structure_button1.setOnClickListener(new View.OnClickListener(){
             @Override

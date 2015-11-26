@@ -6,65 +6,109 @@
         android:id="@+id/structureLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@id/buttonArea"
-        android:background="@drawable/popup_default"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:padding="20dp"
+        android:layout_marginTop="44dp"
+        android:background="#FFFFFF"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:orientation="vertical">
         <TextView
             android:layout_width="fill_parent"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             android:textStyle="bold"
             android:typeface="monospace"
-            android:textSize="20sp"
+            android:textSize="24sp"
+            android:paddingBottom="16dp"
             android:text="구도 선택" />
-        <LinearLayout
+        <ScrollView
             android:layout_width="fill_parent"
-            android:layout_height="120dp"
-            android:orientation="horizontal">
-            <Button
-                style="@style/buttonStructureLand"
-                android:id="@+id/structureButton1"
-                android:background="@drawable/small_horizontal_structure_1" />
-            <TextView
+            android:layout_height="wrap_content">
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="7"
-                android:text="@string/horizontal_structure_description_1"/>
-            <Button
-                style="@style/buttonStructureLand"
-                android:id="@+id/structureButton2"
-                android:background="@drawable/small_horizontal_structure_2" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="7"
-                android:text="@string/horizontal_structure_description_2"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="120dp"
-            android:orientation="horizontal">
-            <Button
-                style="@style/buttonStructureLand"
-                android:id="@+id/structureButton3"
-                android:background="@drawable/small_horizontal_structure_3" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="7"
-                android:text="@string/horizontal_structure_description_3"/>
-            <Button
-                style="@style/buttonStructureLand"
-                android:id="@+id/structureButton4"
-                android:background="@drawable/small_horizontal_structure_4" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="7"
-                android:text="@string/horizontal_structure_description_4"/>
-        </LinearLayout>
+                android:layout_gravity="center_horizontal"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <Button
+                            style="@style/buttonStructureLand"
+                            android:id="@+id/structureButton1"
+                            android:background="@drawable/small_horizontal_structure_1" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="14sp"
+                            android:text="구도 1"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <Button
+                            style="@style/buttonStructureLand"
+                            android:id="@+id/structureButton2"
+                            android:background="@drawable/small_horizontal_structure_2" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="14sp"
+                            android:text="구도 2"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <Button
+                            style="@style/buttonStructureLand"
+                            android:id="@+id/structureButton3"
+                            android:background="@drawable/small_horizontal_structure_3" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="14sp"
+                            android:text="구도 3"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <Button
+                            style="@style/buttonStructureLand"
+                            android:id="@+id/structureButton4"
+                            android:background="@drawable/small_horizontal_structure_4" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:textSize="14sp"
+                            android:text="구도 4"/>
+                </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
+    <ImageButton
+        android:id="@+id/btn_close"
+        android:layout_gravity="right"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/ic_clear_white_24dp"
+        android:background="@drawable/round_btn"/>
 </FrameLayout>
