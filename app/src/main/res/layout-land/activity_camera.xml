@@ -57,6 +57,19 @@
                 android:gravity="center"
                 android:layout_centerInParent="true"
                 android:background="@drawable/btn_shutter_of" />
+            <LinearLayout
+                android:layout_width="74dp"
+                android:layout_height="74dp"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"
+                android:background="#FFFFFF">
+                <ImageView
+                    android:id="@+id/thumbnailView"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:scaleType="fitXY"/>
+            </LinearLayout>
         </RelativeLayout>
         <ImageView
             android:id="@+id/structureImageView"

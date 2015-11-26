@@ -41,6 +41,8 @@
             android:id="@+id/shutterArea"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="8dp"
             android:layout_alignParentBottom="true">
             <ImageView
                 android:id="@+id/angleStatus"
@@ -56,6 +58,19 @@
                 android:gravity="center"
                 android:layout_centerInParent="true"
                 android:background="@drawable/btn_shutter_of" />
+            <LinearLayout
+                android:layout_width="74dp"
+                android:layout_height="74dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:gravity="center"
+                android:background="#FFFFFF">
+                <ImageView
+                    android:id="@+id/thumbnailView"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:scaleType="fitXY"/>
+            </LinearLayout>
         </RelativeLayout>
         <ImageView
             android:id="@+id/structureImageView"

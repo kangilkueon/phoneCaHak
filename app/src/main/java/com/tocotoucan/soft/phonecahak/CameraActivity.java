@@ -1,16 +1,23 @@
 package com.tocotoucan.soft.phonecahak;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -100,7 +107,9 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                galleryAddPic(pictureFile.getPath());
                 refreshCamera();
+                getThumbnail();
             }
         };
 
@@ -128,6 +137,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         closeFragment();
 
         structure_image.setVisibility(View.INVISIBLE);
+
+        getThumbnail();
     }
 
     /* Fragment 생성 및 변경 */
@@ -291,7 +302,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
     private static File getOutputMediaFile() {
         //make a new file directory inside the "sdcard" folder
-        File mediaStorageDir = new File("/sdcard/", "phoneCaHak");
+        Log.e("File path", MediaStore.Images.Media.EXTERNAL_CONTENT_URI.toString());
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath(), "/phoneCaHak");
 
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
@@ -300,7 +312,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         }
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         File mediaFile;
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
+        mediaFile = new File(mediaStorageDir.getAbsolutePath() + "/" + File.separator + "IMG_" + timeStamp + ".jpg");
         return mediaFile;
     }
 
@@ -389,11 +401,11 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     private boolean isAlaramed = false;     /* Prevent too many vibrations */
     private void notifyGoodAngle () {
         angleStatusSwitch(true);
-        if (System.currentTimeMillis() > sensorBreakTimer + 5000) {
+        if (System.currentTimeMillis() > sensorBreakTimer + 10000) {
             sensorBreakTimer = System.currentTimeMillis();
             Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
             if (!isAlaramed) {
-                vibrator.vibrate(1000);
+                vibrator.vibrate(500);
                 isAlaramed = true;
             }
         }
@@ -404,6 +416,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
     }
 
+    private boolean photo_taken_lock = false;
     private void buttonInit () {
         Button rotate_camera_button;
         Button camera_button;
@@ -425,7 +438,11 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         camera_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                mCamera.takePicture(null, null, mPicture);
+                if (photo_taken_lock == false) {
+                    photo_taken_lock = true;
+                    mCamera.takePicture(null, null, mPicture);
+                    photo_taken_lock = false;
+                }
             }
         });
 
@@ -500,5 +517,59 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         super.onDestroy();
 
         Log.e("DESTROY", "YEAH!!");
+    }
+
+    private void getThumbnail() {
+        String[] projection = new String[]{
+                MediaStore.Images.ImageColumns._ID,
+                MediaStore.Images.ImageColumns.DATA,
+                MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME,
+                MediaStore.Images.ImageColumns.DATE_TAKEN,
+                MediaStore.Images.ImageColumns.MIME_TYPE
+        };
+        final Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, MediaStore.Images.ImageColumns.DATE_TAKEN + " DESC");
+
+        if (cursor.moveToFirst()) {
+            String imageLocation = cursor.getString(1);
+            File imageFile = new File(imageLocation);
+            if (imageFile.exists()) {
+                Bitmap thumbnail = BitmapFactory.decodeFile(imageLocation);
+                if (thumbnail != null) {
+                    int height = thumbnail.getHeight();
+                    int width = thumbnail.getWidth();
+
+                    Bitmap resized = null;
+                    while (height > 118) {
+                        resized = Bitmap.createScaledBitmap(thumbnail, (width * 118) / height, 118, true);
+                        height = resized.getHeight();
+                        width = resized.getWidth();
+                    }
+                    ImageView thumbnailView = (ImageView) findViewById(R.id.thumbnailView);
+                    thumbnailView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent();
+                            intent.setAction(android.content.Intent.ACTION_VIEW);
+                            intent.setType("image/*");
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    });
+                    thumbnailView.setImageBitmap(resized);
+                } else {
+                    Log.e("Thumbnail", "We can not find thumbnail");
+                }
+            } else {
+                Log.e("Thumbnail", "File Cannot find");
+            }
+        }
+    }
+
+    private void galleryAddPic(String mCurrentPhotoPath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(mCurrentPhotoPath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
     }
 }
