@@ -8,12 +8,20 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Vibrator;
@@ -23,6 +31,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -37,8 +46,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * Created by kangilkueon on 15. 10. 28.
@@ -137,8 +148,43 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         closeFragment();
 
         structure_image.setVisibility(View.INVISIBLE);
+        camera_preview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    float x = event.getX();
+                    float y = event.getY();
 
+                    touchFocus((int) x, (int) y);
+                }
+                return true;
+            }
+        });
         getThumbnail();
+
+        SurfaceView transparentView = (SurfaceView)findViewById(R.id.transparentSurface);
+
+        holderTransparent = transparentView.getHolder();
+        holderTransparent.setFormat(PixelFormat.TRANSPARENT);
+        holderTransparent.addCallback(surfaceListener2);
+        holderTransparent.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+    }
+    SurfaceHolder holderTransparent;
+
+    private void DrawFocusRect(float RectLeft, float RectTop, float RectRight, float RectBottom, int color)
+    {
+
+        Canvas canvas = holderTransparent.lockCanvas();
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+        //border's properties
+        Paint paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(color);
+        paint.setStrokeWidth(3);
+        canvas.drawRect(RectLeft, RectTop, RectRight, RectBottom, paint);
+
+
+        holderTransparent.unlockCanvasAndPost(canvas);
     }
 
     /* Fragment 생성 및 변경 */
@@ -236,16 +282,22 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 return;
             }
             Camera.Parameters parameters = mCamera.getParameters();
-            /*
+
             int defaultsizeh = parameters.getPreviewSize().height;
             int defaultsizew = parameters.getPreviewSize().width;
 
             Log.e("DEFAULT", defaultsizew + " * " + defaultsizeh);
-            Log.e("paramet", width +" * " + height);
+            Log.e("paramet", width + " * " + height);
 
-            parameters.setPreviewSize(width, height);
+            if(isLandscape) {
+                parameters.set("orientation", "landscape");
+                parameters.setPreviewSize(width, height);
+            }
+            else {
+                parameters.set("orientation", "portrait");
+                parameters.setPreviewSize(height, width);
+            }
             mCamera.setParameters(parameters);
-            */
             mCamera.startPreview();
 
             Log.e("On Resume", "Camera type :: " + camera_type);
@@ -253,6 +305,21 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             Log.e("On Resume", "Camera type :: " + camera_type);
         }
     };
+
+    private SurfaceHolder.Callback surfaceListener2 = new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceCreated(SurfaceHolder holder){
+        }
+
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width,	int height) {
+        }
+    };
+
 
     private void switchCamera() {
         structure_image.setVisibility(View.INVISIBLE);
@@ -571,5 +638,105 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
+    }
+
+    private void setAutoFocusArea(Camera camera, int posX, int posY, int focusRange, boolean flag, Point point) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+            return;
+        }
+
+        if (posX < 0 || posY < 0) {
+            setArea(camera, null);
+            return;
+        }
+
+        int touchPointX;
+        int touchPointY;
+        int endFocusY;
+        int startFocusY;
+
+        if (!flag) {
+            /** Camera.setDisplayOrientation()을 이용해서 영상을 세로로 보고 있는 경우. **/
+            touchPointX = point.y >> 1;
+            touchPointY = point.x >> 1;
+
+            startFocusY = posX;
+            endFocusY   = posY;
+        } else {
+            /** Camera.setDisplayOrientation()을 이용해서 영상을 가로로 보고 있는 경우. **/
+            touchPointX = point.x >> 1;
+            touchPointY = point.y >> 1;
+
+            startFocusY = posY;
+            endFocusY = point.x - posX;
+        }
+
+        float startFocusX   = 1000F / (float) touchPointY;
+        float endFocusX     = 1000F / (float) touchPointX;
+
+        /** 터치된 위치를 기준으로 focusing 영역으로 사용될 영역을 구한다. **/
+        startFocusX = (int) (startFocusX * (float) (startFocusY - touchPointY)) - focusRange;
+        startFocusY = (int) (endFocusX * (float) (endFocusY - touchPointX)) - focusRange;
+        endFocusX = startFocusX + focusRange;
+        endFocusY = startFocusY + focusRange;
+
+        if (startFocusX < -1000)
+            startFocusX = -1000;
+
+        if (startFocusY < -1000)
+            startFocusY = -1000;
+
+        if (endFocusX > 1000) {
+            endFocusX = 1000;
+        }
+
+        if (endFocusY > 1000) {
+            endFocusY = 1000;
+        }
+
+    /*
+     * 주의 : Android Developer 예제 소스 처럼 ArrayList에 Camera.Area를 2개 이상 넣게 되면
+     *          에러가 발생되는 것을 경험할 수 있을 것입니다.
+     **/
+        Rect rect = new Rect((int) startFocusX, (int) startFocusY, (int) endFocusX, (int) endFocusY);
+        ArrayList<Camera.Area> arraylist = new ArrayList<Camera.Area>();
+        arraylist.add(new Camera.Area(rect, 1000)); // 지정된 영역을 100%의 가중치를 두겠다는 의미입니다.
+
+        setArea(camera, arraylist);
+    }
+
+    private void setArea(Camera camera, List<Camera.Area> list) {
+        boolean enableFocusModeMacro = true;
+
+        Camera.Parameters parameters;
+        parameters = camera.getParameters();
+
+        int maxNumFocusAreas    = parameters.getMaxNumFocusAreas();
+        int maxNumMeteringAreas = parameters.getMaxNumMeteringAreas();
+
+        if (maxNumFocusAreas > 0) {
+            parameters.setFocusAreas(list);
+        }
+
+        if (maxNumMeteringAreas > 0) {
+            parameters.setMeteringAreas(list);
+        }
+
+        if (list == null || maxNumFocusAreas < 1 || maxNumMeteringAreas < 1) {
+            enableFocusModeMacro = false;
+        }
+
+        if (enableFocusModeMacro == true) {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+        } else {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        }
+        camera.setParameters(parameters);
+    }
+
+    public void touchFocus(final int posX, final int posY){
+        setAutoFocusArea(mCamera, posX, posY, 128, true, new Point(camera_preview.getWidth(), camera_preview.getHeight()));
+
+        mCamera.autoFocus(null);
     }
 }
