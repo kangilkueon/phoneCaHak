@@ -103,6 +103,20 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     private Animation timer_area_out_anim;
     private Animation timer_area_in_anim;
 
+     private class mTimerTask extends TimerTask {
+         @Override
+         public void run(){
+             Log.i("Timer", "Tick tokc" + timer_count);
+             Message msg = handle.obtainMessage();
+             handle.sendMessage(msg);
+             if (timer_count <= 0) {
+                 mCamera.takePicture(null, null, mPicture);
+                 photo_taken_lock = false;
+                 Log.i("Timer", "Take a picture!");
+             }
+         }
+     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -185,25 +199,12 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         timer_area_in_anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.small_to_big);
 
-        mTask = new TimerTask() {
-            @Override
-            public void run() {
-                Log.i("Timer", "Tick tokc" + timer_count);
-                Message msg = handle.obtainMessage();
-                handle.sendMessage(msg);
-                if (timer_count <= 0) {
-                    mTimer.cancel();
-                    mCamera.takePicture(null, null, mPicture);
-                    photo_taken_lock = false;
-                    Log.i("Timer", "Take a picture!");
-                }
-            }
-        };
 
-        mTimer = new Timer();
+        mTimer = new Timer("cameraTimer", true);
 
         buttonInit();
         layoutInit();
+        structure_image.setVisibility(View.INVISIBLE);
 
     }
 
@@ -212,6 +213,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             timer_count_txt.setText("" + timer_count--);
             if (timer_count < 0) {
                 timer_count_layout.setVisibility(View.INVISIBLE);
+                mTimer.cancel();
             }
         }
     };
@@ -219,7 +221,6 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     private void layoutInit() {
         closeFragment();
 
-        structure_image.setVisibility(View.INVISIBLE);
         timer_btn_layout.setVisibility(View.INVISIBLE);
         timer_count_layout.setVisibility(View.INVISIBLE);
     }
@@ -297,6 +298,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 if (isLandscape) {
                     structure_image.setBackgroundResource(R.drawable.horizontal_structure_3);
                 } else {
+                    structure_image.setBackgroundResource(R.drawable.vertical_structure_3);
                 }
                 break;
             case 4 :
@@ -339,7 +341,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             }
             Camera.Parameters parameters = mCamera.getParameters();
 
-            int defaultsizeh = parameters.getPreviewSize().height;
+            /*int defaultsizeh = parameters.getPreviewSize().height;
             int defaultsizew = parameters.getPreviewSize().width;
 
             Log.e("DEFAULT", defaultsizew + " * " + defaultsizeh);
@@ -354,6 +356,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 parameters.setPreviewSize(height, width);
             }
             mCamera.setParameters(parameters);
+            */
             mCamera.startPreview();
 
             Log.e("On Resume", "Camera type :: " + camera_type);
@@ -624,12 +627,16 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 layoutInit();
 
                 if (photo_taken_lock == false) {
+                    Log.i("Timer", "COUNT::" + timer_count);
                     photo_taken_lock = true;
-                    if (timer_count != 0) {
+                    if (timer_count > 0) {
                         timer_count_layout.setVisibility(View.VISIBLE);
 
                         timer_count_txt.setText("" + timer_count);
                         timer_count--;
+
+                        mTimer = new Timer("cameraTimer", true);
+                        mTask = new mTimerTask();
                         mTimer.schedule(mTask, 1000, 1000);
                     } else {
                         mCamera.takePicture(null, null, mPicture);

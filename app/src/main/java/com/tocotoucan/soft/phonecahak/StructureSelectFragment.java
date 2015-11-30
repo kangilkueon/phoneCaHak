@@ -75,16 +75,17 @@ public class StructureSelectFragment extends Fragment {
 				}
 			});
 
+            Button structure_button3;
+            structure_button3 = (Button) v.findViewById(R.id.structureButton3);
+            structure_button3.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onSelectStructureFrame(3);
+                    getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+                }
+            });
+
 			if (isLandscape) {
-				Button structure_button3;
-				structure_button3 = (Button) v.findViewById(R.id.structureButton3);
-				structure_button3.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						mListener.onSelectStructureFrame(3);
-						getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
-					}
-				});
 
 				Button structure_button4;
 

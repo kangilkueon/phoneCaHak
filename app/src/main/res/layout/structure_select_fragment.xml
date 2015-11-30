@@ -57,6 +57,42 @@
                     android:text="구도 2"/>
             </LinearLayout>
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <Button
+                    style="@style/buttonStructure"
+                    android:id="@+id/structureButton3"
+                    android:background="@drawable/small_vertical_structure_3" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="14sp"
+                    android:text="구도 3"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <Button
+                    style="@style/buttonStructure"
+                    android:id="@+id/structureButton4"
+                    android:background="#FFFFFFFF"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="14sp"
+                    android:text=""/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
     <ImageButton
         android:id="@+id/btn_close"

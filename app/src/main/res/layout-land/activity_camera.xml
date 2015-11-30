@@ -23,6 +23,10 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true" />
+        <ImageView
+            android:id="@+id/structureImageView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
         <Button
             style="@style/buttonTopLand"
             android:id="@+id/BaseButton"
@@ -142,10 +146,6 @@
                     android:scaleType="fitXY"/>
             </LinearLayout>
         </RelativeLayout>
-        <ImageView
-            android:id="@+id/structureImageView"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"/>
         <LinearLayout
             android:id="@+id/structureLayout"
             android:layout_width="fill_parent"
