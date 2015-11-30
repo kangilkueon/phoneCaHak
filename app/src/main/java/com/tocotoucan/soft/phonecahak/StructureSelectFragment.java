@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +50,9 @@ public class StructureSelectFragment extends Fragment {
             public void onClick(View v){
                 mListener.onSelectStructureFrame(0);
 
-                getActivity().getSupportFragmentManager().beginTransaction().remove(StructureSelectFragment.this).commit();
+                FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(R.anim.move_top_bottom, R.anim.move_top_bottom);
+                transaction.remove(StructureSelectFragment.this).commit();
             }
         });
         structure_button1 = (Button) v.findViewById(R.id.structureButton1);

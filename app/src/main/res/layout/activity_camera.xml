@@ -23,8 +23,12 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true" />
+        <Button
+            style="@style/buttonTop"
+            android:id="@+id/BaseButton"
+            android:visibility="invisible"
+            android:background="@drawable/btn_structure_off"/>
         <LinearLayout
-            style="@style/topButtonArea"
             android:id="@+id/buttonArea"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -146,7 +150,7 @@
             android:id="@+id/structureLayout"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_below="@id/buttonArea"
+            android:layout_alignBaseline="@id/BaseButton"
             android:orientation="vertical">
         </LinearLayout>
     </RelativeLayout>

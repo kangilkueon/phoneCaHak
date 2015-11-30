@@ -1,5 +1,7 @@
 package com.tocotoucan.soft.phonecahak;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -23,6 +25,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -50,6 +54,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by kangilkueon on 15. 10. 28.
@@ -128,8 +134,6 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             }
         };
 
-        buttonInit();
-
         structure_image = (ImageView) findViewById(R.id.structureImageView);
 
         timer_btn_layout = (LinearLayout) findViewById(R.id.layout_timer_btn_set);
@@ -150,9 +154,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         backButtonHandler = new BackButtonHandler(this);
         structureFragment = new StructureSelectFragment();
-        closeFragment();
 
-        structure_image.setVisibility(View.INVISIBLE);
         camera_preview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -161,7 +163,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                     float y = event.getY();
 
                     touchFocus((int) x, (int) y);
-                    DrawFocusRect (x-10, y -10, x+10, y+10, Color.BLUE);
+                    DrawFocusRect(x - 50, y - 50, x + 50, y + 50, Color.GREEN);
 
                 }
                 return true;
@@ -176,49 +178,52 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         holderTransparent.addCallback(surfaceListener2);
         holderTransparent.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
-        timer_btn_layout.setVisibility(View.INVISIBLE);
-        timer_count_layout.setVisibility(View.INVISIBLE);
-
         timer_count_txt = (TextView) findViewById(R.id.txt_timer_count);
 
         /* Initialize animation */
-        timer_area_out_anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.big_to_small);
-        timer_area_out_anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                timer_btn_layout.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
+        timer_area_out_anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.move_bottom_top);
 
         timer_area_in_anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.small_to_big);
-        timer_area_in_anim.setAnimationListener(new Animation.AnimationListener() {
+
+        mTask = new TimerTask() {
             @Override
-            public void onAnimationStart(Animation animation) {
-                timer_btn_layout.setVisibility(View.VISIBLE);
+            public void run() {
+                Log.i("Timer", "Tick tokc" + timer_count);
+                Message msg = handle.obtainMessage();
+                handle.sendMessage(msg);
+                if (timer_count <= 0) {
+                    mTimer.cancel();
+                    mCamera.takePicture(null, null, mPicture);
+                    photo_taken_lock = false;
+                    Log.i("Timer", "Take a picture!");
+                }
             }
+        };
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-            }
+        mTimer = new Timer();
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-
+        buttonInit();
+        layoutInit();
 
     }
+
+    final Handler handle = new Handler () {
+        public void handleMessage (Message msg){
+            timer_count_txt.setText("" + timer_count--);
+            if (timer_count < 0) {
+                timer_count_layout.setVisibility(View.INVISIBLE);
+            }
+        }
+    };
+
+    private void layoutInit() {
+        closeFragment();
+
+        structure_image.setVisibility(View.INVISIBLE);
+        timer_btn_layout.setVisibility(View.INVISIBLE);
+        timer_count_layout.setVisibility(View.INVISIBLE);
+    }
+
     SurfaceHolder holderTransparent;
 
     private void DrawFocusRect(float RectLeft, float RectTop, float RectRight, float RectBottom, int color)
@@ -236,7 +241,6 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         holderTransparent.unlockCanvasAndPost(canvas);
     }
-
     /* Fragment 생성 및 변경 */
     private void replaceFragment(){
         isFragmentOn = true;
@@ -246,8 +250,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         argument.putInt("camera_type", camera_type);
         structureFragment.setArguments(argument);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.move_bottom_top, R.anim.move_bottom_top);
         transaction.replace(R.id.structureLayout, structureFragment);
-        transaction.setCustomAnimations(R.anim.move_bottom_top, R.anim.move_top_bottom);
         transaction.commit();
     }
 
@@ -256,6 +260,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         isFragmentOn = false;
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(R.anim.move_top_bottom, R.anim.move_top_bottom);
         transaction.remove(structureFragment).commit();
     }
 
@@ -545,6 +550,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         rotate_camera_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                layoutInit();
                 switchCamera();
                 if (isFragmentOn){
                     closeFragment();
@@ -556,7 +562,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         timer_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                timer_btn_layout.startAnimation(timer_area_in_anim);
+                layoutInit();
+                timerButtonSetAnim(0);
             }
         });
 
@@ -565,7 +572,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             @Override
             public void onClick(View v) {
                 timer_count = 0;
-                timer_btn_layout.startAnimation(timer_area_out_anim);
+                layoutInit();
+                timerButtonSetAnim(1);
             }
         });
 
@@ -574,7 +582,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             @Override
             public void onClick(View v) {
                 timer_count = 1;
-                timer_btn_layout.startAnimation(timer_area_out_anim);
+                layoutInit();
+                timerButtonSetAnim(1);
             }
         });
 
@@ -583,7 +592,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             @Override
             public void onClick(View v) {
                 timer_count = 3;
-                timer_btn_layout.startAnimation(timer_area_out_anim);
+                layoutInit();
+                timerButtonSetAnim(1);
             }
         });
 
@@ -592,7 +602,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             @Override
             public void onClick(View v) {
                 timer_count = 5;
-                timer_btn_layout.startAnimation(timer_area_out_anim);
+                layoutInit();
+                timerButtonSetAnim(1);
             }
         });
 
@@ -601,7 +612,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             @Override
             public void onClick(View v) {
                 timer_count = 10;
-                timer_btn_layout.startAnimation(timer_area_out_anim);
+                layoutInit();
+                timerButtonSetAnim(1);
             }
         });
 
@@ -609,25 +621,20 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         camera_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                layoutInit();
 
                 if (photo_taken_lock == false) {
                     photo_taken_lock = true;
                     if (timer_count != 0) {
                         timer_count_layout.setVisibility(View.VISIBLE);
-                        while (timer_count >= 0) {
-                            try {
-                                wait(1000);
-                                timer_count_txt.setText("" + timer_count);
-                                timer_count--;
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                timer_count = 0;
-                                Toast.makeText(CameraActivity.this, "타이머 기능에 오류가 발생했습니다.", Toast.LENGTH_LONG);
-                            }
-                        }
+
+                        timer_count_txt.setText("" + timer_count);
+                        timer_count--;
+                        mTimer.schedule(mTask, 1000, 1000);
+                    } else {
+                        mCamera.takePicture(null, null, mPicture);
+                        photo_taken_lock = false;
                     }
-                    mCamera.takePicture(null, null, mPicture);
-                    photo_taken_lock = false;
                 }
             }
         });
@@ -636,10 +643,11 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         select_structure_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                //structure_layout.setVisibility(View.VISIBLE);
+
                 if (isFragmentOn){
-                    closeFragment();
+                    layoutInit();
                 } else {
+                    layoutInit();
                     replaceFragment();
                 }
             }
@@ -649,11 +657,15 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         etc_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                layoutInit();
                 Intent intent = new Intent(CameraActivity.this, etcActivity.class);
                 startActivity(intent);
             }
         });
     }
+
+    private TimerTask mTask;
+    private Timer mTimer;
 
     private void cameraRotateInit () {
         WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
@@ -857,5 +869,30 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         setAutoFocusArea(mCamera, posX, posY, 128, true, new Point(camera_preview.getWidth(), camera_preview.getHeight()));
 
         mCamera.autoFocus(null);
+    }
+
+    private void timerButtonSetAnim (int inout) {
+        if (inout == 0) {
+            timer_btn_layout.animate()
+                    .translationY(0).alpha(1.0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            super.onAnimationStart(animation);
+                            timer_btn_layout.setVisibility(View.VISIBLE);
+                            timer_btn_layout.setAlpha(0.0f);
+                        }
+                    });
+        } else {
+            timer_btn_layout.animate()
+                    .translationY(0).alpha(0.0f)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            timer_btn_layout.setVisibility(View.INVISIBLE);
+                        }
+                    });
+        }
     }
 }
