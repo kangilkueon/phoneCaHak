@@ -1,6 +1,5 @@
 package com.tocotoucan.soft.phonecahak;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -37,15 +36,16 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -61,7 +61,9 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     /* Layout component */
     SurfaceView camera_preview;
     SurfaceHolder holder;
-    LinearLayout structure_layout;
+    LinearLayout timer_btn_layout;
+    LinearLayout timer_count_layout;
+    TextView timer_count_txt;
 
     ImageView structure_image;
     ImageView angle_status;
@@ -70,9 +72,9 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     Camera.PictureCallback mPicture;
 
     static int camera_type = BACK_CAMERA;
+    static int timer_count = 0;
 
     /* Orientation Sensor */
-    private int pitch;
     private int roll;
     private int azimuth;
 
@@ -89,7 +91,11 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     private Fragment structureFragment;
     private BackButtonHandler backButtonHandler;
 
-    Vibrator vibrator;
+    private Vibrator vibrator;
+
+    /* Animation */
+    private Animation timer_area_out_anim;
+    private Animation timer_area_in_anim;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,12 +117,10 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                     FileOutputStream fos = new FileOutputStream(pictureFile);
                     fos.write(data);
                     fos.close();
-                    Toast toast = Toast.makeText(CameraActivity.this, "Picture saved: " + pictureFile.getName(), Toast.LENGTH_LONG);
-                    toast.show();
-                } catch (FileNotFoundException e) {
+                    Toast.makeText(CameraActivity.this, "사진이 저장되었습니다 : " + pictureFile.getName(), Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
                     e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    Toast.makeText(CameraActivity.this, "일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                 }
                 galleryAddPic(pictureFile.getPath());
                 refreshCamera();
@@ -128,7 +132,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
         structure_image = (ImageView) findViewById(R.id.structureImageView);
 
-        structure_layout = (LinearLayout) findViewById(R.id.structureLayout);
+        timer_btn_layout = (LinearLayout) findViewById(R.id.layout_timer_btn_set);
+        timer_count_layout = (LinearLayout) findViewById(R.id.layout_timer_count);
 
         camera_preview = (SurfaceView) findViewById(R.id.cameraSurface);
 
@@ -156,6 +161,8 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                     float y = event.getY();
 
                     touchFocus((int) x, (int) y);
+                    DrawFocusRect (x-10, y -10, x+10, y+10, Color.BLUE);
+
                 }
                 return true;
             }
@@ -168,6 +175,49 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         holderTransparent.setFormat(PixelFormat.TRANSPARENT);
         holderTransparent.addCallback(surfaceListener2);
         holderTransparent.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+        timer_btn_layout.setVisibility(View.INVISIBLE);
+        timer_count_layout.setVisibility(View.INVISIBLE);
+
+        timer_count_txt = (TextView) findViewById(R.id.txt_timer_count);
+
+        /* Initialize animation */
+        timer_area_out_anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.big_to_small);
+        timer_area_out_anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                timer_btn_layout.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        timer_area_in_anim = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.small_to_big);
+        timer_area_in_anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                timer_btn_layout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+
     }
     SurfaceHolder holderTransparent;
 
@@ -197,6 +247,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
         structureFragment.setArguments(argument);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.structureLayout, structureFragment);
+        transaction.setCustomAnimations(R.anim.move_bottom_top, R.anim.move_top_bottom);
         transaction.commit();
     }
 
@@ -430,7 +481,6 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        pitch = Math.round(event.values[0]);
         roll = Math.round(event.values[1]);
         azimuth = Math.round(event.values[2]);
 
@@ -443,7 +493,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 notifyGoodAngle();
             } else {
                 angleStatusSwitch(false);
-                isAlaramed = false;
+                isAlarmed = false;
             }
         } else if (display.getRotation() == Surface.ROTATION_90) {
             if(azimuth < 85 && azimuth > 75) {
@@ -451,7 +501,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 notifyGoodAngle ();
             } else {
                 angleStatusSwitch(false);
-                isAlaramed = false;
+                isAlarmed = false;
             }
         } else if (display.getRotation() == Surface.ROTATION_270) {
             if(azimuth < -85 && azimuth > -95) {
@@ -459,21 +509,21 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
                 notifyGoodAngle ();
             } else {
                 angleStatusSwitch(false);
-                isAlaramed = false;
+                isAlarmed = false;
             }
         }
     }
 
     private long sensorBreakTimer = 0;      /* Write the time when was last alarm */
-    private boolean isAlaramed = false;     /* Prevent too many vibrations */
+    private boolean isAlarmed = false;     /* Prevent too many vibrations */
     private void notifyGoodAngle () {
         angleStatusSwitch(true);
         if (System.currentTimeMillis() > sensorBreakTimer + 10000) {
             sensorBreakTimer = System.currentTimeMillis();
             Toast.makeText(this, "사진 찍기 좋은 각도입니다.", Toast.LENGTH_SHORT).show();
-            if (!isAlaramed) {
+            if (!isAlarmed) {
                 vibrator.vibrate(500);
-                isAlaramed = true;
+                isAlarmed = true;
             }
         }
     }
@@ -486,6 +536,7 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
     private boolean photo_taken_lock = false;
     private void buttonInit () {
         Button rotate_camera_button;
+        Button timer_button, timer_0_button, timer_1_button, timer_3_button,timer_5_button,timer_10_button;
         Button camera_button;
         Button select_structure_button;
         Button etc_button;
@@ -501,12 +552,80 @@ public class CameraActivity extends AppCompatActivity implements StructureSelect
             }
         });
 
+        timer_button = (Button) findViewById(R.id.btn_timer);
+        timer_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer_btn_layout.startAnimation(timer_area_in_anim);
+            }
+        });
+
+        timer_0_button = (Button) findViewById(R.id.btn_timer_0);
+        timer_0_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer_count = 0;
+                timer_btn_layout.startAnimation(timer_area_out_anim);
+            }
+        });
+
+        timer_1_button = (Button) findViewById(R.id.btn_timer_1);
+        timer_1_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer_count = 1;
+                timer_btn_layout.startAnimation(timer_area_out_anim);
+            }
+        });
+
+        timer_3_button = (Button) findViewById(R.id.btn_timer_3);
+        timer_3_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer_count = 3;
+                timer_btn_layout.startAnimation(timer_area_out_anim);
+            }
+        });
+
+        timer_5_button = (Button) findViewById(R.id.btn_timer_5);
+        timer_5_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer_count = 5;
+                timer_btn_layout.startAnimation(timer_area_out_anim);
+            }
+        });
+
+        timer_10_button = (Button) findViewById(R.id.btn_timer_10);
+        timer_10_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timer_count = 10;
+                timer_btn_layout.startAnimation(timer_area_out_anim);
+            }
+        });
+
         camera_button = (Button) findViewById(R.id.cameraButton);
         camera_button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+
                 if (photo_taken_lock == false) {
                     photo_taken_lock = true;
+                    if (timer_count != 0) {
+                        timer_count_layout.setVisibility(View.VISIBLE);
+                        while (timer_count >= 0) {
+                            try {
+                                wait(1000);
+                                timer_count_txt.setText("" + timer_count);
+                                timer_count--;
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                timer_count = 0;
+                                Toast.makeText(CameraActivity.this, "타이머 기능에 오류가 발생했습니다.", Toast.LENGTH_LONG);
+                            }
+                        }
+                    }
                     mCamera.takePicture(null, null, mPicture);
                     photo_taken_lock = false;
                 }
